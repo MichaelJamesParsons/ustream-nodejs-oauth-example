@@ -48,6 +48,9 @@ app.get('/channels', (req, res) => {
 
   ustream.channel.list()
     .then((channels) => {
+      // Ustream's API returns a page of channels as an object, where the keys
+      // are the ids of each channel and the values are their corresponding
+      // fields. This extracts the data for each channel as an array.
       const channelData = Object.keys(channels.data).map((id) => {
         return channels.data[id]
       })
