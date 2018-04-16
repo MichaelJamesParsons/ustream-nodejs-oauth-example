@@ -70,7 +70,7 @@ app.get('/channels', (req, res) => {
   } else {
     // No code or token provided. Show error.
     res.render('channels', {
-      success: null
+      success: false
     })
 
     return null

@@ -15,7 +15,6 @@
   "dependencies": {
     "body-parser": "^1.18.2",
     "express": "^4.16.3",
-    "express-generator": "^4.16.0",
     "express-handlebars": "^3.0.0",
     "ustream-sdk": "^1.1.1"
   },
