@@ -62,7 +62,7 @@ app.get('/channels', (req, res) => {
   } else if (req.query.access_token) {
     // Implicit flow
     ustream = new Ustream({
-      type: 'oauth_bearer',
+      type: 'oauth_token',
       access_token: req.query.access_token,
       token_type: req.query.token_type,
       expires_in: req.query.expires_in
