@@ -7,8 +7,12 @@
 <body>
     <div class="container">
         <h1>Ustream OAuth Demo</h1>
-        <a href="{{endpoint}}"
-           class="action-link">Sign in with Ustream</a>
+        <a href="{{implicit_flow_endpoint}}" class="action-link">Implicit flow</a>
+        <a href="{{auth_code_flow_endpoint}}" class="action-link">Auth code flow</a>
+
+        <div>
+            <a href="https://github.com/MichaelJamesParsons/ustream-nodejs-oauth-example">View the code</a>
+        </div>
     </div>
 </body>
 </html>

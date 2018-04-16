@@ -8,7 +8,18 @@ h1 {
     font-size: 36px;
     font-weight: 100;
     margin-top: 0;
-    margin-bottom: 40px;
+    margin-bottom: 30px;
+}
+
+a {
+    color: #cc2266;
+    text-decoration: none;
+    margin: 10px;
+    display: inline-block;
+}
+
+a:hover {
+    text-decoration: underline;
 }
 
 .container {
@@ -35,6 +46,7 @@ h1 {
 
 .action-link:hover {
     background-color: #a91560;
+    text-decoration: none;
 }
 
 .channel-list {

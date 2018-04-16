@@ -12,39 +12,69 @@ app.use(bodyParser.urlencoded({ extended: false }))
 /**
  * The app's entry point.
  *
- * Renders a button that links to Ustream's Oauth login page. This application
- * assumes your USTREAM_REDIRECT_URI returns to:
+ * Renders two buttons which link to Ustream's oauth login page. This
+ * application assumes your USTREAM_REDIRECT_URI returns to:
  *
  *    https://yourDomain.com/channels
  */
 app.get('/', (req, res) => {
   const oauthParams = {
-    response_type: "token",
     client_id: process.env.USTREAM_CLIENT_ID,
     redirect_uri: process.env.USTREAM_REDIRECT_URI,
     token_type: "bearer"
   }
 
   // Append oauthParams as query string parameters to the authorization url.
-  const endpoint = Object.keys(oauthParams).reduce((queryString, param) => {
-    return `${queryString}&${param}=${oauthParams[param]}`
-  }, `https://www.ustream.tv/oauth2/authorize?`)
+  const implicit_flow_endpoint = Object.keys(oauthParams)
+    .reduce((queryString, param) => {
+      return `${queryString}&${param}=${oauthParams[param]}`
+    }, `https://www.ustream.tv/oauth2/authorize?response_type=token`)
 
-  res.render('index', { endpoint })
+  const auth_code_flow_endpoint = Object.keys(oauthParams)
+    .reduce((queryString, param) => {
+      return `${queryString}&${param}=${oauthParams[param]}`
+    }, `https://www.ustream.tv/oauth2/authorize?response_type=code`)
+
+  res.render('index', {
+    implicit_flow_endpoint,
+    auth_code_flow_endpoint
+  })
 })
 
 /**
  * The endpoint where your OAuth redirect should send the user after
  * they have logged in to their Ustream account.
+ *
+ * http://developers.video.ibm.com/channel-api/getting-started.html#authorization-flows_2
  */
 app.get('/channels', (req, res) => {
-  const { access_token, token_type, expires_in } = req.query
-  const ustream = new Ustream({
-    type: 'oauth_bearer',
-    access_token,
-    token_type,
-    expires_in
-  })
+  let ustream = null
+
+  if (req.query.code) {
+    // Authorization code flow
+    ustream = new Ustream({
+      type: 'oauth_code',
+      client_id: process.env.USTREAM_CLIENT_ID,
+      client_secret: process.env.USTREAM_CLIENT_SECRET,
+      code: req.query.code,
+      redirect_uri: process.env.USTREAM_REDIRECT_URI
+    })
+  } else if (req.query.access_token) {
+    // Implicit flow
+    ustream = new Ustream({
+      type: 'oauth_bearer',
+      access_token: req.query.access_token,
+      token_type: req.query.token_type,
+      expires_in: req.query.expires_in
+    })
+  } else {
+    // No code or token provided. Show error.
+    res.render('channels', {
+      success: null
+    })
+
+    return null
+  }
 
   ustream.channel.list()
     .then((channels) => {
@@ -60,7 +90,8 @@ app.get('/channels', (req, res) => {
         channels: channelData
       })
     })
-    .catch(function () {
+    .catch(() => {
+      // Oauth failed. Show error.
       res.render('channels', {
         success: false
       })
